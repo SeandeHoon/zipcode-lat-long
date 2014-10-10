@@ -1,0 +1,29 @@
+library(XML)
+library(RCurl)
+
+* writing the function to go to the Google Maps API
+maps <- function(opvanglocatie_postcode){
+  xml.url <- paste0('http://maps.googleapis.com/maps/api/geocode/xml?address=',opvanglocatie_postcode,'+Nederland')
+  xmlfile <- xmlParse(getURL(xml.url))
+  lat <- xmlValue(xmlChildren(xpathApply(xmlfile,"//location")[[1]])$lat)
+  long <- xmlValue(xmlChildren(xpathApply(xmlfile,"//location")[[1]])$lng)
+  A <- c(lat,long)
+  return(A)
+}
+
+* importing data from csv file. Data are open data from the Dutch government on the location of childcare facilities
+mydata <- read.csv2("export_opendata_lrkp.csv")  # read csv file 
+
+* creating a matrix with the same number of rows as the number of childcare facilities
+matrix <- matrix(, nrow=length(mydata$opvanglocatie_postcode), ncol=2)
+ 
+* looping over each entry (facility) and using the function that is written.
+for (i in 1:length(mydata$opvanglocatie_postcode)){
+  matrix[i,1:2] <- maps(mydata$opvanglocatie_postcode[i])
+  }
+
+* a possible beginning to a solution
+a <- as.vector(which(is.na(matrix[,1])))
+
+while (a[1] <= 102128){
+* something...
